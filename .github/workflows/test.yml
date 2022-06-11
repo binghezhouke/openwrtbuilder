@@ -1,0 +1,26 @@
+name: build
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: prepare
+        run: sudo apt-get update && sudo apt install -y build-essential gawk gcc-multilib flex git gettext libncurses5-dev libssl-dev python3-distutils zlib1g-dev && sudo apt-get install -y unzip wget rsync
+      - name: show env
+        run: ls * && cat /proc/cpuinfo && ifconfig && env
+      - name: sync codes
+        run: git submodule init && git submodule update
+      - name: config
+        run: cp diff.config openwrt/.config && cd openwrt && make defconfig
+      - name: make download
+        run: cd openwrt && make download
+      - name: make all
+        run: cd openwrt && make -j 
+      
